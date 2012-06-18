@@ -409,7 +409,7 @@ public class GsonJSONSerializationTest {
 
 		serialization.from(proxy).serialize();
 
-		assertThat(result(), is("{\"client\": {\"name\": \"my name\",\"aField\": \"abc\"}}"));
+		assertThat(result(), is("{\"client\":{\"aField\":\"abc\",\"name\":\"my name\"}}"));
 
 		verify(initializer).initialize();
 	}
