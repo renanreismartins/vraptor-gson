@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package br.com.caelum.vraptor.serialization.xstream;
+package br.com.caelum.vraptor.serialization.gson;
 
 import static br.com.caelum.vraptor.serialization.xstream.VRaptorClassMapper.isPrimitive;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -29,6 +29,11 @@ import br.com.caelum.vraptor.interceptor.TypeNameExtractor;
 import br.com.caelum.vraptor.serialization.ProxyInitializer;
 import br.com.caelum.vraptor.serialization.Serializer;
 import br.com.caelum.vraptor.serialization.SerializerBuilder;
+import br.com.caelum.vraptor.serialization.xstream.OldAndProbablyBuggyConfigurer;
+import br.com.caelum.vraptor.serialization.xstream.ProxyConverter;
+import br.com.caelum.vraptor.serialization.xstream.Serializee;
+import br.com.caelum.vraptor.serialization.xstream.VRaptorClassMapper;
+import br.com.caelum.vraptor.serialization.xstream.VRaptorXStream;
 
 import com.thoughtworks.xstream.XStream;
 

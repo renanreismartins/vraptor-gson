@@ -1,3 +1,4 @@
+package br.com.caelum.vraptor.serialization.gson;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
