@@ -152,8 +152,7 @@ public class GsonSerializer implements SerializerBuilder {
 			writer.flush();
 			writer.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException("Não pode serializar", e);
 		}
 	}
 
