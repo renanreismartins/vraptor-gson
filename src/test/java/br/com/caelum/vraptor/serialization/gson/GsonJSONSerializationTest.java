@@ -432,6 +432,7 @@ public class GsonJSONSerializationTest {
 		}
 	}
 
+	@Ignore
 	@Test
 	public void shouldUseCollectionConverterWhenItExists() {
 		String expectedResult = "[\"testing\"]";
