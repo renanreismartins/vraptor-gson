@@ -28,9 +28,6 @@ import br.com.caelum.vraptor.serialization.Serializer;
 import br.com.caelum.vraptor.serialization.SerializerBuilder;
 import br.com.caelum.vraptor.view.ResultException;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 /**
  * XStream implementation for JSONSerialization
  * 
@@ -46,14 +43,12 @@ public class GsonJSONSerialization implements JSONSerialization {
 
 	protected final ProxyInitializer initializer;
 
-	protected final GsonBuilder builder;
+	protected final VraptorGsonBuilder builder = new VraptorGsonBuilder();
 
-	public GsonJSONSerialization(HttpServletResponse response, TypeNameExtractor extractor,
-			ProxyInitializer initializer, GsonBuilder builder) {
+	public GsonJSONSerialization(HttpServletResponse response, TypeNameExtractor extractor, ProxyInitializer initializer) {
 		this.response = response;
 		this.extractor = extractor;
 		this.initializer = initializer;
-		this.builder = builder;
 	}
 
 	public boolean accepts(String format) {
@@ -65,15 +60,13 @@ public class GsonJSONSerialization implements JSONSerialization {
 	}
 
 	public <T> Serializer from(T object, String alias) {
-
 		response.setContentType("application/json");
 		return getSerializer().from(object, alias);
 	}
 
 	protected SerializerBuilder getSerializer() {
 		try {
-			Gson gson = new Gson();
-			return new GsonSerializer(gson, response.getWriter(), extractor, initializer);
+			return new GsonSerializer(builder, response.getWriter(), extractor, initializer);
 		} catch (IOException e) {
 			throw new ResultException("Unable to serialize data", e);
 		}
@@ -83,12 +76,12 @@ public class GsonJSONSerialization implements JSONSerialization {
 	 * You can override this method for configuring Driver before serialization
 	 */
 	public <T> NoRootSerialization withoutRoot() {
-		// TODO IMPLEMENTAR
+		builder.setWithoutRoot(true);
 		return this;
 	}
 
 	public JSONSerialization indented() {
-		builder.setPrettyPrinting();
+		builder.indented();
 		return this;
 	}
 }

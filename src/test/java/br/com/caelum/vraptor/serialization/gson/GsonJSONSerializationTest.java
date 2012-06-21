@@ -27,11 +27,8 @@ import org.junit.Test;
 import br.com.caelum.vraptor.interceptor.DefaultTypeNameExtractor;
 import br.com.caelum.vraptor.serialization.HibernateProxyInitializer;
 import br.com.caelum.vraptor.serialization.xstream.GsonJSONSerialization;
-import br.com.caelum.vraptor.serialization.xstream.XStreamJSONSerialization;
 
 import com.google.common.collect.ForwardingCollection;
-import com.google.gson.GsonBuilder;
-import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
@@ -50,8 +47,6 @@ public class GsonJSONSerializationTest {
 
 	private HibernateProxyInitializer initializer;
 
-	private GsonBuilder builder = new GsonBuilder();
-
 	@Before
 	public void setup() throws Exception {
 		this.stream = new ByteArrayOutputStream();
@@ -60,7 +55,7 @@ public class GsonJSONSerializationTest {
 		when(response.getWriter()).thenReturn(new PrintWriter(stream));
 		extractor = new DefaultTypeNameExtractor();
 		initializer = new HibernateProxyInitializer();
-		this.serialization = new GsonJSONSerialization(response, extractor, initializer, builder);
+		this.serialization = new GsonJSONSerialization(response, extractor, initializer);
 	}
 
 	public static class Address {
@@ -146,7 +141,7 @@ public class GsonJSONSerializationTest {
 
 	@Test
 	public void shouldSerializeGenericClass() {
-		String expectedResult = "{\"genericWrapper\": {\"entityList\": [{\"name\": \"washington botelho\"},{\"name\": \"washington botelho\"}],\"total\": 2}}";
+		String expectedResult = "{\"genericWrapper\":{\"entityList\":[{\"name\":\"washington botelho\"},{\"name\":\"washington botelho\"}],\"total\":2}}";
 
 		Collection<Client> entityList = new ArrayList<Client>();
 		entityList.add(new Client("washington botelho"));
@@ -161,7 +156,7 @@ public class GsonJSONSerializationTest {
 
 	@Test
 	public void shouldSerializeAllBasicFields() {
-		String expectedResult = "{\"order\": {\"price\": 15.0,\"comments\": \"pack it nicely, please\"}}";
+		String expectedResult = "{\"order\":{\"price\":15.0,\"comments\":\"pack it nicely, please\"}}";
 		Order order = new Order(new Client("guilherme silveira"), 15.0, "pack it nicely, please");
 		serialization.from(order).serialize();
 		assertThat(result(), is(equalTo(expectedResult)));
@@ -169,7 +164,7 @@ public class GsonJSONSerializationTest {
 
 	@Test
 	public void shouldSerializeAllBasicFieldsIdented() {
-		String expectedResult = "{\"order\": {\n  \"price\": 15.0,\n  \"comments\": \"pack it nicely, please\"\n}}";
+		String expectedResult = "{\n  \"order\": {\n    \"price\": 15.0,\n    \"comments\": \"pack it nicely, please\"\n  }\n}";
 		Order order = new Order(new Client("guilherme silveira"), 15.0, "pack it nicely, please");
 		serialization.indented().from(order).serialize();
 		assertThat(result(), is(equalTo(expectedResult)));
@@ -177,7 +172,7 @@ public class GsonJSONSerializationTest {
 
 	@Test
 	public void shouldUseAlias() {
-		String expectedResult = "{\"customOrder\": {\"price\": 15.0,\"comments\": \"pack it nicely, please\"}}";
+		String expectedResult = "{\"customOrder\":{\"price\":15.0,\"comments\":\"pack it nicely, please\"}}";
 		Order order = new Order(new Client("guilherme silveira"), 15.0, "pack it nicely, please");
 		serialization.from(order, "customOrder").serialize();
 		assertThat(result(), is(equalTo(expectedResult)));
@@ -204,14 +199,14 @@ public class GsonJSONSerializationTest {
 		Order order = new BasicOrder(new Client("guilherme silveira"), 15.0, "pack it nicely, please", Type.basic);
 		serialization.from(order).serialize();
 		String result = result();
-		assertThat(result, containsString("\"type\": \"basic\""));
+		assertThat(result, containsString("\"type\":\"basic\""));
 	}
 
 	@Test
 	public void shouldSerializeCollection() {
-		String expectedResult = "{\"price\": 15.0,\"comments\": \"pack it nicely, please\"}";
+		String expectedResult = "{\"price\":15.0,\"comments\":\"pack it nicely, please\"}";
 		expectedResult += "," + expectedResult;
-		expectedResult = "{\"list\": [" + expectedResult + "]}";
+		expectedResult = "{\"list\":[" + expectedResult + "]}";
 
 		Order order = new Order(new Client("guilherme silveira"), 15.0, "pack it nicely, please");
 		serialization.from(Arrays.asList(order, order)).serialize();
@@ -220,9 +215,9 @@ public class GsonJSONSerializationTest {
 
 	@Test
 	public void shouldSerializeCollectionWithPrefixTag() {
-		String expectedResult = "{\"price\": 15.0,\"comments\": \"pack it nicely, please\"}";
+		String expectedResult = "{\"price\":15.0,\"comments\":\"pack it nicely, please\"}";
 		expectedResult += "," + expectedResult;
-		expectedResult = "{\"orders\": [" + expectedResult + "]}";
+		expectedResult = "{\"orders\":[" + expectedResult + "]}";
 		Order order = new Order(new Client("guilherme silveira"), 15.0, "pack it nicely, please");
 		serialization.from(Arrays.asList(order, order), "orders").serialize();
 		assertThat(result(), is(equalTo(expectedResult)));
@@ -264,7 +259,7 @@ public class GsonJSONSerializationTest {
 		// "<advancedOrder><notes>complex package</notes><price>15.0</price><comments>pack it nicely, please</comments></advancedOrder>";
 		Order order = new AdvancedOrder(null, 15.0, "pack it nicely, please", "complex package");
 		serialization.from(order).serialize();
-		assertThat(result(), containsString("\"notes\": \"complex package\""));
+		assertThat(result(), containsString("\"notes\":\"complex package\""));
 	}
 
 	@Test
@@ -286,7 +281,7 @@ public class GsonJSONSerializationTest {
 
 	@Test
 	public void shouldOptionallyExcludeFields() {
-		String expectedResult = "{\"order\": {\"comments\": \"pack it nicely, please\"}}";
+		String expectedResult = "{\"order\":{\"comments\":\"pack it nicely, please\"}}";
 		Order order = new Order(new Client("guilherme silveira"), 15.0, "pack it nicely, please");
 		serialization.from(order).exclude("price").serialize();
 		assertThat(result(), is(equalTo(expectedResult)));
@@ -299,7 +294,7 @@ public class GsonJSONSerializationTest {
 		Order order = new Order(new Client("guilherme silveira", new Address("R. Vergueiro")), 15.0,
 				"pack it nicely, please");
 		serialization.from(order).include("client").serialize();
-		assertThat(result(), containsString("\"name\": \"guilherme silveira\""));
+		assertThat(result(), containsString("\"name\":\"guilherme silveira\""));
 		assertThat(result(), not(containsString("R. Vergueiro")));
 	}
 
@@ -310,7 +305,7 @@ public class GsonJSONSerializationTest {
 		Order order = new Order(new Client("guilherme silveira", new Address("R. Vergueiro")), 15.0,
 				"pack it nicely, please");
 		serialization.from(order).include("client", "client.address").serialize();
-		assertThat(result(), containsString("\"street\": \"R. Vergueiro\""));
+		assertThat(result(), containsString("\"street\":\"R. Vergueiro\""));
 	}
 
 	@Test
@@ -331,8 +326,8 @@ public class GsonJSONSerializationTest {
 				12.99));
 		serialization.from(order).include("items").serialize();
 		assertThat(result(), containsString("\"items\""));
-		assertThat(result(), containsString("\"name\": \"any item\""));
-		assertThat(result(), containsString("\"price\": 12.99"));
+		assertThat(result(), containsString("\"name\":\"any item\""));
+		assertThat(result(), containsString("\"price\":12.99"));
 	}
 
 	@Test
@@ -343,7 +338,7 @@ public class GsonJSONSerializationTest {
 				12.99));
 		serialization.from(order).include("items").exclude("items.price").serialize();
 		assertThat(result(), containsString("\"items\""));
-		assertThat(result(), containsString("\"name\": \"any item\""));
+		assertThat(result(), containsString("\"name\":\"any item\""));
 		assertThat(result(), not(containsString("12.99")));
 	}
 
@@ -353,7 +348,7 @@ public class GsonJSONSerializationTest {
 				12.99));
 		serialization.withoutRoot().from(order).include("items").exclude("items.price").serialize();
 		assertThat(result(), containsString("\"items\""));
-		assertThat(result(), containsString("\"name\": \"any item\""));
+		assertThat(result(), containsString("\"name\":\"any item\""));
 		assertThat(result(), not(containsString("12.99")));
 		assertThat(result(), not(containsString("\"order\":")));
 	}
@@ -440,7 +435,7 @@ public class GsonJSONSerializationTest {
 	@Test
 	public void shouldUseCollectionConverterWhenItExists() {
 		String expectedResult = "[\"testing\"]";
-		GsonJSONSerialization serialization = new GsonJSONSerialization(response, extractor, initializer, builder);
+		GsonJSONSerialization serialization = new GsonJSONSerialization(response, extractor, initializer);
 		serialization.withoutRoot().from(new MyCollection()).serialize();
 		assertThat(result(), is(equalTo(expectedResult)));
 	}

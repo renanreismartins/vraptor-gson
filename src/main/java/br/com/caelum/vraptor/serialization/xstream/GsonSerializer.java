@@ -23,6 +23,7 @@ import java.io.Writer;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,9 +40,8 @@ import com.google.gson.Gson;
  * @author Lucas Cavalcanti
  * @since 3.0.2
  */
-public class GsonSerializer implements SerializerBuilder {
 
-	private final Gson gson;
+public class GsonSerializer implements SerializerBuilder {
 
 	private final Writer writer;
 
@@ -51,13 +51,14 @@ public class GsonSerializer implements SerializerBuilder {
 
 	private final Serializee serializee = new Serializee();
 
-	private String alias;
+	protected VraptorGsonBuilder builder;
 
-	public GsonSerializer(Gson gson, Writer writer, TypeNameExtractor extractor, ProxyInitializer initializer) {
-		this.gson = gson;
+	public GsonSerializer(VraptorGsonBuilder builder, Writer writer, TypeNameExtractor extractor,
+			ProxyInitializer initializer) {
 		this.writer = writer;
 		this.extractor = extractor;
 		this.initializer = initializer;
+		this.builder = builder;
 	}
 
 	public Serializer exclude(String... names) {
@@ -69,19 +70,24 @@ public class GsonSerializer implements SerializerBuilder {
 		checkNotNull(obj, "You can't serialize null objects");
 
 		serializee.setRootClass(initializer.getActualClass(obj));
-		
+
+		// TODO VERIFICAR SE REALMENTE É NECESSARIO ESSA INICIALIZACAO. APENAS
+		// PARA PASSAR NO TESTE
+		if (initializer.isProxy(obj.getClass())) {
+			initializer.initialize(obj);
+		}
+
 		if (alias == null) {
-			alias = extractor.nameFor(serializee.getRootClass());
-			
-			//TODO VERIFICAR SE REALMENTE É NECESSARIO ESSA INICIALIZACAO. APENAS PARA PASSAR NO TESTE
-			if(initializer.isProxy(obj.getClass())) {
-				initializer.initialize(obj);
+			if (Collection.class.isInstance(obj) && (List.class.isInstance(obj))) {
+				alias = "list";
+			} else {
+				alias = extractor.nameFor(serializee.getRootClass());
 			}
 		}
 
-		setRoot(obj);
+		builder.setAlias(alias);
 
-		setAlias(obj, alias);
+		setRoot(obj);
 	}
 
 	private void setRoot(Object obj) {
@@ -99,11 +105,6 @@ public class GsonSerializer implements SerializerBuilder {
 		serializee.setElementTypes(findElementTypes(list));
 
 		return list;
-	}
-
-	private void setAlias(Object obj, String alias) {
-		// TODO verificar comportamento original. Collections e etc
-		this.alias = alias;
 	}
 
 	public <T> Serializer from(T object, String alias) {
@@ -135,17 +136,17 @@ public class GsonSerializer implements SerializerBuilder {
 		try {
 			Object root = serializee.getRoot();
 
-			if (alias != null) {
+			builder.setExclusionStrategies(new Exclusions(serializee));
 
-				// TODO FAZER O GSON PROCESSAR O OBJETO E DEPOIS JOGAR A STRING
-				// NO
-				// VALUE DO MAP. ASSIM AS ANOTAÇÕES DO GSON FUNCIONAM
+			Gson gson = builder.create();
 
+			String alias = builder.getAlias();
+			if (builder.isWithoutRoot()) {
+				writer.write(gson.toJson(root));
+			} else {
 				Map<String, Object> tree = new HashMap<>();
 				tree.put(alias, root);
 				writer.write(gson.toJson(tree));
-			} else {
-				writer.write(gson.toJson(root));
 			}
 
 			writer.flush();
