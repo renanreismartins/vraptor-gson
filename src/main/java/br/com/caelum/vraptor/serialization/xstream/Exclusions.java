@@ -1,12 +1,10 @@
 package br.com.caelum.vraptor.serialization.xstream;
 
-import java.util.Calendar;
-import java.util.Date;
+import static br.com.caelum.vraptor.serialization.xstream.GsonSerializer.isPrimitive;
+
 import java.util.Map.Entry;
 
 import net.vidageek.mirror.dsl.Mirror;
-
-import br.com.caelum.vraptor.serialization.xstream.Serializee;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
@@ -36,17 +34,11 @@ public class Exclusions implements ExclusionStrategy {
 		}
 
 		boolean skip = false;
-		
+
 		if (!serializee.isRecursive())
 			skip = !isPrimitive(new Mirror().on(definedIn).reflect().field(fieldName).getType());
-		
-		return skip;
-	}
 
-	static boolean isPrimitive(Class<?> type) {
-		return type.isPrimitive() || type.isEnum() || Number.class.isAssignableFrom(type) || type.equals(String.class)
-				|| Date.class.isAssignableFrom(type) || Calendar.class.isAssignableFrom(type)
-				|| Boolean.class.equals(type) || Character.class.equals(type);
+		return skip;
 	}
 
 	private boolean isCompatiblePath(Entry<String, Class<?>> path, Class<?> definedIn, String fieldName) {

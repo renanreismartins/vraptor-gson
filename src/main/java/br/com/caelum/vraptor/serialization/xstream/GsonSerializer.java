@@ -15,12 +15,13 @@
  */
 package br.com.caelum.vraptor.serialization.xstream;
 
-import static br.com.caelum.vraptor.serialization.xstream.VRaptorClassMapper.isPrimitive;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -145,7 +146,7 @@ public class GsonSerializer implements SerializerBuilder {
 			if (builder.isWithoutRoot()) {
 				writer.write(gson.toJson(root));
 			} else {
-				Map<String, Object> tree = new HashMap<>();
+				Map<String, Object> tree = new HashMap<String, Object>();
 				tree.put(alias, root);
 				writer.write(gson.toJson(tree));
 			}
@@ -160,5 +161,11 @@ public class GsonSerializer implements SerializerBuilder {
 	public Serializer recursive() {
 		this.serializee.setRecursive(true);
 		return this;
+	}
+	
+	static boolean isPrimitive(Class<?> type) {
+		return type.isPrimitive() || type.isEnum() || Number.class.isAssignableFrom(type) || type.equals(String.class)
+				|| Date.class.isAssignableFrom(type) || Calendar.class.isAssignableFrom(type)
+				|| Boolean.class.equals(type) || Character.class.equals(type);
 	}
 }
