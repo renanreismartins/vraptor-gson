@@ -149,7 +149,8 @@ public class GsonJSONSerializationTest {
 
 		GenericWrapper<Client> wrapper = new GenericWrapper<Client>(entityList, entityList.size());
 
-		serialization.from(wrapper).include("entityList").include("entityList.name").serialize();
+		// serialization.from(wrapper).include("entityList").include("entityList.name").serialize();
+		serialization.from(wrapper).include("entityList").serialize();
 
 		assertThat(result(), is(equalTo(expectedResult)));
 	}
