@@ -26,7 +26,7 @@ import org.junit.Test;
 
 import br.com.caelum.vraptor.interceptor.DefaultTypeNameExtractor;
 import br.com.caelum.vraptor.serialization.HibernateProxyInitializer;
-import br.com.caelum.vraptor.serialization.xstream.GsonJSONSerialization;
+import br.com.caelum.vraptor.serialization.gson.GsonJSONSerialization;
 
 import com.google.common.collect.ForwardingCollection;
 import com.thoughtworks.xstream.converters.Converter;
