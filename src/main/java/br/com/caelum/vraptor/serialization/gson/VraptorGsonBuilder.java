@@ -1,5 +1,7 @@
 package br.com.caelum.vraptor.serialization.gson;
 
+import org.hibernate.proxy.HibernateProxy;
+
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -37,6 +39,7 @@ public class VraptorGsonBuilder {
 	}
 
 	public Gson create() {
+		builder.registerTypeHierarchyAdapter(HibernateProxy.class, new HibernateProxySerializer());
 		return builder.create();
 	}
 }

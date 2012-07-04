@@ -6,7 +6,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
@@ -26,7 +25,6 @@ import org.junit.Test;
 
 import br.com.caelum.vraptor.interceptor.DefaultTypeNameExtractor;
 import br.com.caelum.vraptor.serialization.HibernateProxyInitializer;
-import br.com.caelum.vraptor.serialization.gson.GsonJSONSerialization;
 
 import com.google.common.collect.ForwardingCollection;
 import com.thoughtworks.xstream.converters.Converter;
@@ -402,12 +400,11 @@ public class GsonJSONSerializationTest {
 		proxy.aField = "abc";
 
 		when(initializer.getPersistentClass()).thenReturn(Client.class);
+		when(proxy.getHibernateLazyInitializer().getImplementation()).thenReturn((Client)proxy);
 
 		serialization.from(proxy).serialize();
 
 		assertThat(result(), is("{\"client\":{\"aField\":\"abc\",\"name\":\"my name\"}}"));
-
-		verify(initializer).initialize();
 	}
 
 	static class MyCollection extends ForwardingCollection<Order> {

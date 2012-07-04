@@ -73,12 +73,6 @@ public class GsonSerializer implements SerializerBuilder {
 
 		serializee.setRootClass(initializer.getActualClass(obj));
 
-		// TODO VERIFICAR SE REALMENTE É NECESSARIO ESSA INICIALIZACAO. APENAS
-		// PARA PASSAR NO TESTE
-		if (initializer.isProxy(obj.getClass())) {
-			initializer.initialize(obj);
-		}
-
 		if (alias == null) {
 			if (Collection.class.isInstance(obj) && (List.class.isInstance(obj))) {
 				alias = "list";
