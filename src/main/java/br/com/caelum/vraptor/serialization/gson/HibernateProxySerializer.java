@@ -18,12 +18,8 @@ public class HibernateProxySerializer implements JsonSerializer<HibernateProxy> 
 	}
 
 	@Override
-	public JsonElement serialize(HibernateProxy proxyObj, Type arg1, JsonSerializationContext arg2) {
-		try {
-			Object deProxied = proxyObj.getHibernateLazyInitializer().getImplementation();
-			return gson.toJsonTree(deProxied);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+	public JsonElement serialize(HibernateProxy proxyObj, Type type, JsonSerializationContext ctx) {
+		Object deProxied = proxyObj.getHibernateLazyInitializer().getImplementation();
+		return gson.toJsonTree(deProxied);
 	}
 }
