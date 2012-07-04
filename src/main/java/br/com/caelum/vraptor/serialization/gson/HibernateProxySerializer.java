@@ -13,8 +13,8 @@ public class HibernateProxySerializer implements JsonSerializer<HibernateProxy> 
 
 	private Gson gson;
 
-	public HibernateProxySerializer() {
-		gson = new Gson();
+	public HibernateProxySerializer(Gson gson) {
+		this.gson = gson;
 	}
 
 	@Override
