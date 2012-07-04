@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: br.com.caelum.vraptor.serialization.gson.GsonJSONSerializationTest
--------------------------------------------------------------------------------
-Tests run: 22, Failures: 0, Errors: 0, Skipped: 2, Time elapsed: 0.823 sec
