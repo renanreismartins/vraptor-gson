@@ -8,13 +8,8 @@ import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.Locale;
 
-import br.com.caelum.vraptor.serialization.xstream.XStreamBuilderImpl;
-import br.com.caelum.vraptor.serialization.xstream.XStreamConverters;
-import com.thoughtworks.xstream.converters.Converter;
-import com.thoughtworks.xstream.converters.SingleValueConverter;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,60 +21,64 @@ import br.com.caelum.vraptor.resource.ResourceMethod;
 
 public class GsonDeserializerTest {
 
-	private GsonDeserialization deserializer;
-	private ResourceMethod bark;
-	private ParameterNameProvider provider;
-	private Localization localization;
-	private ResourceMethod jump;
-	private DefaultResourceMethod woof;
-	private DefaultResourceMethod dropDead;
+	private GsonDeserialization		deserializer;
+	private ResourceMethod			bark;
+	private ParameterNameProvider	provider;
+	private Localization			localization;
+	private ResourceMethod			jump;
+	private DefaultResourceMethod	woof;
+	private DefaultResourceMethod	dropDead;
 
 	@Before
 	public void setUp() throws Exception {
 		provider = mock(ParameterNameProvider.class);
 		localization = mock(Localization.class);
-		
+
 		when(localization.getLocale()).thenReturn(new Locale("pt", "BR"));
 
-        deserializer = new GsonDeserialization(provider, localization);
+		deserializer = new GsonDeserialization(provider, localization);
 		DefaultResourceClass resourceClass = new DefaultResourceClass(DogController.class);
 
 		woof = new DefaultResourceMethod(resourceClass, DogController.class.getDeclaredMethod("woof"));
 		bark = new DefaultResourceMethod(resourceClass, DogController.class.getDeclaredMethod("bark", Dog.class));
-		jump = new DefaultResourceMethod(resourceClass, DogController.class.getDeclaredMethod("jump", Dog.class, Integer.class));
-		dropDead = new DefaultResourceMethod(resourceClass, DogController.class.getDeclaredMethod("dropDead", Integer.class, Dog.class));
+		jump = new DefaultResourceMethod(resourceClass, DogController.class.getDeclaredMethod("jump", Dog.class,
+				Integer.class));
+		dropDead = new DefaultResourceMethod(resourceClass, DogController.class.getDeclaredMethod("dropDead",
+				Integer.class, Dog.class));
 	}
 
 	static class Dog {
-		private String name;
-		private Integer age;
+		private String	name;
+		private Integer	age;
 	}
 
 	static class DogController {
 
 		public void woof() {
 		}
+
 		public void bark(Dog dog) {
 		}
 
 		public void jump(Dog dog, Integer times) {
 		}
+
 		public void dropDead(Integer times, Dog dog) {
 		}
 
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void shouldNotAcceptMethodsWithoutArguments() throws Exception {
 		deserializer.deserialize(new ByteArrayInputStream(new byte[0]), woof);
 	}
+
 	@Test
 	public void shouldBeAbleToDeserializeADog() throws Exception {
-		InputStream stream = new ByteArrayInputStream("<dog><name>Brutus</name><age>7</age></dog>".getBytes());
+		InputStream stream = new ByteArrayInputStream("{'dog':{'name':'Brutus','age':7}}".getBytes());
 
-
-		when(provider.parameterNamesFor(bark.getMethod())).thenReturn(new String[] {"dog"});
-		when(provider.parameterNamesFor(bark.getMethod())).thenReturn(new String[] {"dog"});
+		when(provider.parameterNamesFor(bark.getMethod())).thenReturn(new String[] { "dog" });
+		when(provider.parameterNamesFor(bark.getMethod())).thenReturn(new String[] { "dog" });
 
 		Object[] deserialized = deserializer.deserialize(stream, bark);
 
@@ -89,11 +88,12 @@ public class GsonDeserializerTest {
 		assertThat(dog.name, is("Brutus"));
 		assertThat(dog.age, is(7));
 	}
+
 	@Test
 	public void shouldBeAbleToDeserializeADogWhenMethodHasMoreThanOneArgument() throws Exception {
-		InputStream stream = new ByteArrayInputStream("<dog><name>Brutus</name><age>7</age></dog>".getBytes());
+		InputStream stream = new ByteArrayInputStream("{'dog':{'name':'Brutus','age':7}}".getBytes());
 
-		when(provider.parameterNamesFor(jump.getMethod())).thenReturn(new String[] {"dog", "times"});
+		when(provider.parameterNamesFor(jump.getMethod())).thenReturn(new String[] { "dog", "times" });
 
 		Object[] deserialized = deserializer.deserialize(stream, jump);
 
@@ -103,11 +103,12 @@ public class GsonDeserializerTest {
 		assertThat(dog.name, is("Brutus"));
 		assertThat(dog.age, is(7));
 	}
+
 	@Test
 	public void shouldBeAbleToDeserializeADogWhenMethodHasMoreThanOneArgumentAndTheXmlIsTheLastOne() throws Exception {
-		InputStream stream = new ByteArrayInputStream("<dog><name>Brutus</name><age>7</age></dog>".getBytes());
+		InputStream stream = new ByteArrayInputStream("{'dog':{'name':'Brutus','age':7}}".getBytes());
 
-		when(provider.parameterNamesFor(dropDead.getMethod())).thenReturn(new String[] {"times", "dog"});
+		when(provider.parameterNamesFor(dropDead.getMethod())).thenReturn(new String[] { "times", "dog" });
 
 		Object[] deserialized = deserializer.deserialize(stream, dropDead);
 
@@ -122,7 +123,7 @@ public class GsonDeserializerTest {
 	public void shouldBeAbleToDeserializeADogNamedDifferently() throws Exception {
 		InputStream stream = new ByteArrayInputStream("<pet><name>Brutus</name><age>7</age></pet>".getBytes());
 
-		when(provider.parameterNamesFor(bark.getMethod())).thenReturn(new String[] {"pet"});
+		when(provider.parameterNamesFor(bark.getMethod())).thenReturn(new String[] { "pet" });
 
 		Object[] deserialized = deserializer.deserialize(stream, bark);
 
