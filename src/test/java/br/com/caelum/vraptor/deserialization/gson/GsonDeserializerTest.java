@@ -121,7 +121,7 @@ public class GsonDeserializerTest {
 
 	@Test
 	public void shouldBeAbleToDeserializeADogNamedDifferently() throws Exception {
-		InputStream stream = new ByteArrayInputStream("<pet><name>Brutus</name><age>7</age></pet>".getBytes());
+		InputStream stream = new ByteArrayInputStream("{'pet':{'name':'Brutus','age':7}}".getBytes());
 
 		when(provider.parameterNamesFor(bark.getMethod())).thenReturn(new String[] { "pet" });
 
