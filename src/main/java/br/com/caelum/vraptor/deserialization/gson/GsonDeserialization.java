@@ -25,12 +25,12 @@ import com.google.gson.JsonParser;
 @Deserializes({ "application/json", "json" })
 public class GsonDeserialization implements Deserializer {
 
-	private static final Logger logger = LoggerFactory.getLogger(GsonDeserialization.class);
+	private static final Logger			logger	= LoggerFactory.getLogger(GsonDeserialization.class);
 
-	private final ParameterNameProvider paramNameProvider;
+	private final ParameterNameProvider	paramNameProvider;
 
-	private Localization localization;
-	
+	private Localization				localization;
+
 	public GsonDeserialization(ParameterNameProvider paramNameProvider, Localization localization) {
 		this.paramNameProvider = paramNameProvider;
 		this.localization = localization;
@@ -74,9 +74,9 @@ public class GsonDeserialization implements Deserializer {
 
 		String pattern = ((SimpleDateFormat) DateFormat.getDateInstance(DateFormat.MEDIUM, localization.getLocale()))
 				.toLocalizedPattern();
-		
+
 		GsonBuilder gsonBuilder = new GsonBuilder().setDateFormat(pattern);
-		
+
 		return gsonBuilder.create();
 	}
 
