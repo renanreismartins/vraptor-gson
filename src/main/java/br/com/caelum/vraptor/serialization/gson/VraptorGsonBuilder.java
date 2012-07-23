@@ -1,10 +1,15 @@
 package br.com.caelum.vraptor.serialization.gson;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Collection;
+
 import org.hibernate.proxy.HibernateProxy;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSerializer;
 
 public class VraptorGsonBuilder {
 
@@ -13,6 +18,12 @@ public class VraptorGsonBuilder {
 	private boolean withoutRoot;
 
 	private String alias;
+
+	private Collection<JsonSerializer<?>> adapters;
+
+	public VraptorGsonBuilder(Collection<JsonSerializer<?>> adapters) {
+		this.adapters = adapters;
+	}
 
 	public boolean isWithoutRoot() {
 		return withoutRoot;
@@ -39,7 +50,19 @@ public class VraptorGsonBuilder {
 	}
 
 	public Gson create() {
-		builder.registerTypeHierarchyAdapter(HibernateProxy.class, new HibernateProxySerializer(builder.create()));
+		for (JsonSerializer<?> adapter : adapters) {
+			builder.registerTypeHierarchyAdapter(getAdapterType(adapter), adapter);
+		}
+
+		builder.registerTypeHierarchyAdapter(HibernateProxy.class, new HibernateProxySerializer(new Gson()));
+
 		return builder.create();
+	}
+
+	private Class<?> getAdapterType(JsonSerializer<?> adapter) {
+		Type[] genericInterfaces = adapter.getClass().getGenericInterfaces();
+		ParameterizedType type = (ParameterizedType) genericInterfaces[0];
+		Type actualType = type.getActualTypeArguments()[0];
+		return (Class<?>) actualType;
 	}
 }
