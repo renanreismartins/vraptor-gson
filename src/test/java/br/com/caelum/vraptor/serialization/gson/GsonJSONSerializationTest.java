@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -53,7 +54,7 @@ public class GsonJSONSerializationTest {
 		when(response.getWriter()).thenReturn(new PrintWriter(stream));
 		extractor = new DefaultTypeNameExtractor();
 		initializer = new HibernateProxyInitializer();
-		this.serialization = new GsonJSONSerialization(response, extractor, initializer);
+		this.serialization = new GsonJSONSerialization(response, extractor, initializer, Collections.EMPTY_LIST);
 	}
 
 	public static class Address {
@@ -430,11 +431,10 @@ public class GsonJSONSerializationTest {
 		}
 	}
 
-	@Ignore
 	@Test
 	public void shouldUseCollectionConverterWhenItExists() {
 		String expectedResult = "[\"testing\"]";
-		GsonJSONSerialization serialization = new GsonJSONSerialization(response, extractor, initializer);
+		GsonJSONSerialization serialization = new GsonJSONSerialization(response, extractor, initializer, Collections.EMPTY_LIST);
 		serialization.withoutRoot().from(new MyCollection()).serialize();
 		assertThat(result(), is(equalTo(expectedResult)));
 	}

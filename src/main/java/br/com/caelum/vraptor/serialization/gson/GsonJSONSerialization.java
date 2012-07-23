@@ -16,6 +16,11 @@
 package br.com.caelum.vraptor.serialization.gson;
 
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -27,6 +32,9 @@ import br.com.caelum.vraptor.serialization.ProxyInitializer;
 import br.com.caelum.vraptor.serialization.Serializer;
 import br.com.caelum.vraptor.serialization.SerializerBuilder;
 import br.com.caelum.vraptor.view.ResultException;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonSerializer;
 
 /**
  * XStream implementation for JSONSerialization
@@ -42,13 +50,16 @@ public class GsonJSONSerialization implements JSONSerialization {
 	protected final TypeNameExtractor extractor;
 
 	protected final ProxyInitializer initializer;
+	
+	protected Collection<JsonSerializer<?>> adapters;
 
 	protected final VraptorGsonBuilder builder = new VraptorGsonBuilder();
 
-	public GsonJSONSerialization(HttpServletResponse response, TypeNameExtractor extractor, ProxyInitializer initializer) {
+	public GsonJSONSerialization(HttpServletResponse response, TypeNameExtractor extractor, ProxyInitializer initializer, Collection<JsonSerializer<?>> adapters) {
 		this.response = response;
 		this.extractor = extractor;
 		this.initializer = initializer;
+		this.adapters = adapters;
 	}
 
 	public boolean accepts(String format) {
@@ -83,5 +94,23 @@ public class GsonJSONSerialization implements JSONSerialization {
 	public JSONSerialization indented() {
 		builder.indented();
 		return this;
+	}
+	
+	
+	public static void main(String[] args) {
+		List<JsonSerializer<?>> adapters = new ArrayList<JsonSerializer<?>>();
+		
+		JsonSerializer<?> x = new HibernateProxySerializer(new Gson());
+		
+		Type[] genericInterfaces = x.getClass().getGenericInterfaces();
+		
+		for (Type genericType : genericInterfaces) {
+			ParameterizedType type = (ParameterizedType) genericType;
+			System.out.println(type);
+			Type actualType = type.getActualTypeArguments()[0];
+			System.out.println(actualType);
+		}
+		
+		
 	}
 }
