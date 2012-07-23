@@ -11,15 +11,9 @@ import com.google.gson.JsonSerializer;
 
 public class HibernateProxySerializer implements JsonSerializer<HibernateProxy> {
 
-	private Gson gson;
-
-	public HibernateProxySerializer(Gson gson) {
-		this.gson = gson;
-	}
-
 	@Override
 	public JsonElement serialize(HibernateProxy proxyObj, Type type, JsonSerializationContext ctx) {
 		Object deProxied = proxyObj.getHibernateLazyInitializer().getImplementation();
-		return gson.toJsonTree(deProxied);
+		return new Gson().toJsonTree(deProxied);
 	}
 }

@@ -54,7 +54,7 @@ public class VraptorGsonBuilder {
 			builder.registerTypeHierarchyAdapter(getAdapterType(adapter), adapter);
 		}
 
-		builder.registerTypeHierarchyAdapter(HibernateProxy.class, new HibernateProxySerializer(new Gson()));
+		builder.registerTypeHierarchyAdapter(HibernateProxy.class, new HibernateProxySerializer());
 
 		return builder.create();
 	}

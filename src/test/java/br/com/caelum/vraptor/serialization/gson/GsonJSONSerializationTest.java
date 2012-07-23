@@ -424,9 +424,7 @@ public class GsonJSONSerializationTest {
 		@Override
 		public JsonElement serialize(MyCollection myColl, java.lang.reflect.Type typeOfSrc,
 				JsonSerializationContext context) {
-			String src = "testing";
-			List<String> x = Arrays.asList(src);
-			return new Gson().toJsonTree(x);
+			return new Gson().toJsonTree(Arrays.asList("testing"));
 		}
 	}
 
