@@ -29,19 +29,21 @@ import br.com.caelum.vraptor.serialization.HibernateProxyInitializer;
 
 import com.google.common.collect.ForwardingCollection;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 public class GsonJSONSerializationTest {
 
-	private GsonJSONSerialization serialization;
+	private GsonJSONSerialization		serialization;
 
-	private ByteArrayOutputStream stream;
+	private ByteArrayOutputStream		stream;
 
-	private HttpServletResponse response;
+	private HttpServletResponse			response;
 
-	private DefaultTypeNameExtractor extractor;
+	private DefaultTypeNameExtractor	extractor;
 
-	private HibernateProxyInitializer initializer;
+	private HibernateProxyInitializer	initializer;
 
 	@Before
 	public void setup() throws Exception {
@@ -56,7 +58,7 @@ public class GsonJSONSerializationTest {
 	}
 
 	public static class Address {
-		String street;
+		String	street;
 
 		public Address(String street) {
 			this.street = street;
@@ -64,9 +66,9 @@ public class GsonJSONSerializationTest {
 	}
 
 	public static class Client {
-		String name;
+		String	name;
 
-		Address address;
+		Address	address;
 
 		public Client(String name) {
 			this.name = name;
@@ -79,9 +81,9 @@ public class GsonJSONSerializationTest {
 	}
 
 	public static class Item {
-		String name;
+		String	name;
 
-		double price;
+		double	price;
 
 		public Item(String name, double price) {
 			this.name = name;
@@ -90,13 +92,13 @@ public class GsonJSONSerializationTest {
 	}
 
 	public static class Order {
-		Client client;
+		Client		client;
 
-		double price;
+		double		price;
 
-		String comments;
+		String		comments;
 
-		List<Item> items;
+		List<Item>	items;
 
 		public Order(Client client, double price, String comments, Item... items) {
 			this.client = client;
@@ -114,7 +116,7 @@ public class GsonJSONSerializationTest {
 	public static class AdvancedOrder extends Order {
 
 		@SuppressWarnings("unused")
-		private final String notes;
+		private final String	notes;
 
 		public AdvancedOrder(Client client, double price, String comments, String notes) {
 			super(client, price, comments);
@@ -125,9 +127,9 @@ public class GsonJSONSerializationTest {
 
 	public static class GenericWrapper<T> {
 
-		Collection<T> entityList;
+		Collection<T>	entityList;
 
-		Integer total;
+		Integer			total;
 
 		public GenericWrapper(Collection<T> entityList, Integer total) {
 			this.entityList = entityList;
@@ -187,7 +189,7 @@ public class GsonJSONSerializationTest {
 		}
 
 		@SuppressWarnings("unused")
-		private final Type type;
+		private final Type	type;
 	}
 
 	@Test
@@ -250,7 +252,7 @@ public class GsonJSONSerializationTest {
 	}
 
 	static class WithAdvanced {
-		AdvancedOrder order;
+		AdvancedOrder	order;
 	}
 
 	@Test
@@ -369,11 +371,11 @@ public class GsonJSONSerializationTest {
 	}
 
 	public static class SomeProxy extends Client implements HibernateProxy {
-		private static final long serialVersionUID = 1L;
+		private static final long			serialVersionUID	= 1L;
 
-		private String aField;
+		private String						aField;
 
-		private transient LazyInitializer initializer;
+		private transient LazyInitializer	initializer;
 
 		public SomeProxy(LazyInitializer initializer) {
 			super("name");
@@ -418,16 +420,26 @@ public class GsonJSONSerializationTest {
 
 	}
 
+	static class CollectionSerializer implements JsonSerializer<MyCollection> {
+		@Override
+		public JsonElement serialize(MyCollection myColl, java.lang.reflect.Type typeOfSrc,
+				JsonSerializationContext context) {
+			String src = "testing";
+			List<String> x = Arrays.asList(src);
+			return new Gson().toJsonTree(x);
+		}
+	}
+
 	@Test
 	public void shouldUseCollectionConverterWhenItExists() {
 		String expectedResult = "[\"testing\"]";
 
 		List<JsonSerializer<?>> adapters = new ArrayList<JsonSerializer<?>>();
-		adapters.add(new CollectionSerializer(new Gson()));
+		adapters.add(new CollectionSerializer());
 
 		GsonJSONSerialization serialization = new GsonJSONSerialization(response, extractor, initializer,
 				adapters);
-		
+
 		serialization.withoutRoot().from(new MyCollection()).serialize();
 		assertThat(result(), is(equalTo(expectedResult)));
 	}
