@@ -11,4 +11,6 @@ O JSON serializado através do XStream era poluído, além de não deserializar 
 
 Instruções de uso:
 ------------------
-Basta adicionar o arquivo target/vraptor-gson-1.0.jar em seu classpath. Fique a vontade para criar adaptadores de serialização caso necessário, conforme a [documentação do GSON](https://sites.google.com/site/gson/gson-user-guide/).
+Basta adicionar o arquivo target/vraptor-gson-1.0.jar em seu classpath.
+
+Fique a vontade para criar seus [adaptadores (converters)](https://sites.google.com/site/gson/gson-user-guide/#TOC-Custom-Serialization-and-Deserialization) do GSON, basta implementar a interface JsonSerializer<T> e anotar sua classe com @Component. Semelhante como é feito com os converters do Xstream.
