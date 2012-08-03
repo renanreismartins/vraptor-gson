@@ -12,8 +12,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -26,10 +28,11 @@ import org.junit.Test;
 
 import br.com.caelum.vraptor.interceptor.DefaultTypeNameExtractor;
 import br.com.caelum.vraptor.serialization.HibernateProxyInitializer;
+import br.com.caelum.vraptor.serialization.gson.adapters.CalendarSerializer;
 
 import com.google.common.collect.ForwardingCollection;
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
@@ -66,9 +69,11 @@ public class GsonJSONSerializationTest {
 	}
 
 	public static class Client {
-		String	name;
+		String		name;
 
-		Address	address;
+		Address		address;
+
+		Calendar	included;
 
 		public Client(String name) {
 			this.name = name;
@@ -424,7 +429,7 @@ public class GsonJSONSerializationTest {
 		@Override
 		public JsonElement serialize(MyCollection myColl, java.lang.reflect.Type typeOfSrc,
 				JsonSerializationContext context) {
-			return new Gson().toJsonTree(Arrays.asList("testing"));
+			return new JsonParser().parse("[testing]").getAsJsonArray();
 		}
 	}
 
@@ -440,6 +445,26 @@ public class GsonJSONSerializationTest {
 
 		serialization.withoutRoot().from(new MyCollection()).serialize();
 		assertThat(result(), is(equalTo(expectedResult)));
+	}
+
+	@Test
+	public void shouldSerializeCalendarLikeXstream() {
+		List<JsonSerializer<?>> adapters = new ArrayList<JsonSerializer<?>>();
+		adapters.add(new CalendarSerializer());
+		GsonJSONSerialization serialization = new GsonJSONSerialization(response, extractor, initializer,
+				adapters);
+
+		Client c = new Client("renan");
+		c.included = new GregorianCalendar(2012, 8, 3);
+
+		serialization.from(c).serialize();
+		String result = result();
+
+		String expectedResult = "{\"client\":{\"name\":\"renan\",\"included\":{\"time\":\""
+				+ c.included.getTimeInMillis()
+				+ "\",\"timezone\":\"" + c.included.getTimeZone().getID() + "\"}}}";
+
+		assertThat(result, is(equalTo(expectedResult)));
 	}
 
 }
