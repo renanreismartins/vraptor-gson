@@ -4,10 +4,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 
-import org.hibernate.proxy.HibernateProxy;
-
-import br.com.caelum.vraptor.serialization.gson.adapters.HibernateProxySerializer;
-
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -55,8 +51,6 @@ public class VraptorGsonBuilder {
 		for (JsonSerializer<?> adapter : adapters) {
 			builder.registerTypeHierarchyAdapter(getAdapterType(adapter), adapter);
 		}
-
-		builder.registerTypeHierarchyAdapter(HibernateProxy.class, new HibernateProxySerializer());
 
 		return builder.create();
 	}
