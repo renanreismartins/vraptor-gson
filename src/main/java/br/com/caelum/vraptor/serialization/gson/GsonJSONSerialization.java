@@ -46,12 +46,12 @@ public class GsonJSONSerialization implements JSONSerialization {
 
 	protected final ProxyInitializer		initializer;
 
-	protected Collection<JsonSerializer>	adapters;
+	protected Collection<JsonSerializer<?>>	adapters;
 
 	protected final VraptorGsonBuilder		builder;
 
 	public GsonJSONSerialization(HttpServletResponse response, TypeNameExtractor extractor,
-			ProxyInitializer initializer, Collection<JsonSerializer> adapters) {
+			ProxyInitializer initializer, Collection<JsonSerializer<?>> adapters) {
 		this.response = response;
 		this.extractor = extractor;
 		this.initializer = initializer;
@@ -60,14 +60,17 @@ public class GsonJSONSerialization implements JSONSerialization {
 		this.builder = new VraptorGsonBuilder(adapters);
 	}
 
+	@Override
 	public boolean accepts(String format) {
 		return "json".equals(format);
 	}
 
+	@Override
 	public <T> Serializer from(T object) {
 		return from(object, null);
 	}
 
+	@Override
 	public <T> Serializer from(T object, String alias) {
 		response.setContentType("application/json");
 		return getSerializer().from(object, alias);
@@ -84,11 +87,13 @@ public class GsonJSONSerialization implements JSONSerialization {
 	/**
 	 * You can override this method for configuring Driver before serialization
 	 */
+	@Override
 	public <T> NoRootSerialization withoutRoot() {
 		builder.setWithoutRoot(true);
 		return this;
 	}
 
+	@Override
 	public JSONSerialization indented() {
 		builder.indented();
 		return this;

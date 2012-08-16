@@ -387,6 +387,7 @@ public class GsonJSONSerializationTest {
 			this.initializer = initializer;
 		}
 
+		@Override
 		public LazyInitializer getHibernateLazyInitializer() {
 			return initializer;
 		}
@@ -395,6 +396,7 @@ public class GsonJSONSerializationTest {
 			return aField;
 		}
 
+		@Override
 		public Object writeReplace() {
 			return this;
 		}
@@ -410,7 +412,7 @@ public class GsonJSONSerializationTest {
 		proxy.aField = "abc";
 
 		when(initializer.getPersistentClass()).thenReturn(Client.class);
-		when(proxy.getHibernateLazyInitializer().getImplementation()).thenReturn((Client) proxy);
+		when(proxy.getHibernateLazyInitializer().getImplementation()).thenReturn(proxy);
 
 		serialization.from(proxy).serialize();
 
@@ -437,7 +439,7 @@ public class GsonJSONSerializationTest {
 	public void shouldUseCollectionConverterWhenItExists() {
 		String expectedResult = "[\"testing\"]";
 
-		List<JsonSerializer> adapters = new ArrayList<JsonSerializer>();
+		List<JsonSerializer<?>> adapters = new ArrayList<JsonSerializer<?>>();
 		adapters.add(new CollectionSerializer());
 
 		GsonJSONSerialization serialization = new GsonJSONSerialization(response, extractor, initializer,
@@ -449,8 +451,9 @@ public class GsonJSONSerializationTest {
 
 	@Test
 	public void shouldSerializeCalendarLikeXstream() {
-		List<JsonSerializer> adapters = new ArrayList<JsonSerializer>();
+		List<JsonSerializer<?>> adapters = new ArrayList<JsonSerializer<?>>();
 		adapters.add(new CalendarSerializer());
+
 		GsonJSONSerialization serialization = new GsonJSONSerialization(response, extractor, initializer,
 				adapters);
 
