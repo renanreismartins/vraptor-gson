@@ -40,18 +40,18 @@ import com.google.gson.JsonSerializer;
 @Component
 public class GsonJSONSerialization implements JSONSerialization {
 
-	protected final HttpServletResponse response;
+	protected final HttpServletResponse		response;
 
-	protected final TypeNameExtractor extractor;
+	protected final TypeNameExtractor		extractor;
 
-	protected final ProxyInitializer initializer;
+	protected final ProxyInitializer		initializer;
 
-	protected Collection<JsonSerializer<?>> adapters;
+	protected Collection<JsonSerializer>	adapters;
 
-	protected final VraptorGsonBuilder builder;
+	protected final VraptorGsonBuilder		builder;
 
 	public GsonJSONSerialization(HttpServletResponse response, TypeNameExtractor extractor,
-			ProxyInitializer initializer, Collection<JsonSerializer<?>> adapters) {
+			ProxyInitializer initializer, Collection<JsonSerializer> adapters) {
 		this.response = response;
 		this.extractor = extractor;
 		this.initializer = initializer;

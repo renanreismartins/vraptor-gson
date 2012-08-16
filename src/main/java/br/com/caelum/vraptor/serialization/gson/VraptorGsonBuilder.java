@@ -13,15 +13,15 @@ import com.google.gson.JsonSerializer;
 
 public class VraptorGsonBuilder {
 
-	protected GsonBuilder					builder	= new GsonBuilder();
+	protected GsonBuilder				builder	= new GsonBuilder();
 
-	private boolean							withoutRoot;
+	private boolean						withoutRoot;
 
-	private String							alias;
+	private String						alias;
 
-	private Collection<JsonSerializer<?>>	adapters;
+	private Collection<JsonSerializer>	adapters;
 
-	public VraptorGsonBuilder(Collection<JsonSerializer<?>> adapters) {
+	public VraptorGsonBuilder(Collection<JsonSerializer> adapters) {
 		this.adapters = adapters;
 	}
 

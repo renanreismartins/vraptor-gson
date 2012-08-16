@@ -437,7 +437,7 @@ public class GsonJSONSerializationTest {
 	public void shouldUseCollectionConverterWhenItExists() {
 		String expectedResult = "[\"testing\"]";
 
-		List<JsonSerializer<?>> adapters = new ArrayList<JsonSerializer<?>>();
+		List<JsonSerializer> adapters = new ArrayList<JsonSerializer>();
 		adapters.add(new CollectionSerializer());
 
 		GsonJSONSerialization serialization = new GsonJSONSerialization(response, extractor, initializer,
@@ -449,7 +449,7 @@ public class GsonJSONSerializationTest {
 
 	@Test
 	public void shouldSerializeCalendarLikeXstream() {
-		List<JsonSerializer<?>> adapters = new ArrayList<JsonSerializer<?>>();
+		List<JsonSerializer> adapters = new ArrayList<JsonSerializer>();
 		adapters.add(new CalendarSerializer());
 		GsonJSONSerialization serialization = new GsonJSONSerialization(response, extractor, initializer,
 				adapters);

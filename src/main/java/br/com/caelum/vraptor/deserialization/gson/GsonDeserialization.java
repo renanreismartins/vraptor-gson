@@ -29,7 +29,7 @@ public class GsonDeserialization implements Deserializer {
 
 	private final ParameterNameProvider	paramNameProvider;
 
-	private Localization				localization;
+	private final Localization			localization;
 
 	public GsonDeserialization(ParameterNameProvider paramNameProvider, Localization localization) {
 		this.paramNameProvider = paramNameProvider;
@@ -91,5 +91,4 @@ public class GsonDeserialization implements Deserializer {
 
 		return content.toString();
 	}
-
 }
