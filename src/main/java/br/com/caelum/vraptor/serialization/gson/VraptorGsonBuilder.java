@@ -6,6 +6,8 @@ import java.util.Collection;
 
 import org.hibernate.proxy.HibernateProxy;
 
+import br.com.caelum.vraptor.serialization.gson.adapters.HibernateProxySerializer;
+
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
