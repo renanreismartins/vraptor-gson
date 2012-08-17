@@ -46,18 +46,18 @@ public class GsonJSONSerialization implements JSONSerialization {
 
 	protected final ProxyInitializer		initializer;
 
-	protected Collection<JsonSerializer<?>>	adapters;
+	protected Collection<JsonSerializer<?>>	serializers;
 
 	protected final VraptorGsonBuilder		builder;
 
 	public GsonJSONSerialization(HttpServletResponse response, TypeNameExtractor extractor,
-			ProxyInitializer initializer, Collection<JsonSerializer<?>> adapters) {
+			ProxyInitializer initializer, Collection<JsonSerializer<?>> serializers) {
 		this.response = response;
 		this.extractor = extractor;
 		this.initializer = initializer;
-		this.adapters = adapters;
+		this.serializers = serializers;
 
-		this.builder = new VraptorGsonBuilder(adapters);
+		this.builder = new VraptorGsonBuilder(serializers);
 	}
 
 	@Override

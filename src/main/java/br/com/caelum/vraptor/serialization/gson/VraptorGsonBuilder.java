@@ -17,10 +17,10 @@ public class VraptorGsonBuilder {
 
 	private String							alias;
 
-	private Collection<JsonSerializer<?>>	adapters;
+	private Collection<JsonSerializer<?>>	serializers;
 
-	public VraptorGsonBuilder(Collection<JsonSerializer<?>> adapters) {
-		this.adapters = adapters;
+	public VraptorGsonBuilder(Collection<JsonSerializer<?>> serializers) {
+		this.serializers = serializers;
 	}
 
 	public boolean isWithoutRoot() {
@@ -48,7 +48,7 @@ public class VraptorGsonBuilder {
 	}
 
 	public Gson create() {
-		for (JsonSerializer<?> adapter : adapters) {
+		for (JsonSerializer<?> adapter : serializers) {
 			builder.registerTypeHierarchyAdapter(getAdapterType(adapter), adapter);
 		}
 
