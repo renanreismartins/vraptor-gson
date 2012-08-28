@@ -5,15 +5,16 @@ import static br.com.caelum.vraptor.serialization.gson.GsonSerializer.isPrimitiv
 import java.util.Map.Entry;
 
 import net.vidageek.mirror.dsl.Mirror;
-
+import br.com.caelum.vraptor.ioc.Component;
 import br.com.caelum.vraptor.serialization.xstream.Serializee;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 
+@Component
 public class Exclusions implements ExclusionStrategy {
 
-	private Serializee serializee;
+	private Serializee	serializee;
 
 	public Exclusions(Serializee serializee) {
 		this.serializee = serializee;

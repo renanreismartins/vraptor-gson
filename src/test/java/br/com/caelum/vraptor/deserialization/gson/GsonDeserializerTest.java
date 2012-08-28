@@ -8,6 +8,9 @@ import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import org.junit.Before;
@@ -19,10 +22,16 @@ import br.com.caelum.vraptor.resource.DefaultResourceClass;
 import br.com.caelum.vraptor.resource.DefaultResourceMethod;
 import br.com.caelum.vraptor.resource.ResourceMethod;
 
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+
 public class GsonDeserializerTest {
 
 	private GsonDeserialization		deserializer;
 	private ResourceMethod			bark;
+	private ResourceMethod			specialBark;
 	private ParameterNameProvider	provider;
 	private Localization			localization;
 	private ResourceMethod			jump;
@@ -36,11 +45,16 @@ public class GsonDeserializerTest {
 
 		when(localization.getLocale()).thenReturn(new Locale("pt", "BR"));
 
-		deserializer = new GsonDeserialization(provider, localization);
+		List<JsonDeserializer<?>> deserializers = new ArrayList<JsonDeserializer<?>>();
+		deserializers.add(new SpecialDogDeserializer());
+
+		deserializer = new GsonDeserialization(provider, deserializers);
 		DefaultResourceClass resourceClass = new DefaultResourceClass(DogController.class);
 
 		woof = new DefaultResourceMethod(resourceClass, DogController.class.getDeclaredMethod("woof"));
 		bark = new DefaultResourceMethod(resourceClass, DogController.class.getDeclaredMethod("bark", Dog.class));
+		specialBark = new DefaultResourceMethod(resourceClass, DogController.class.getDeclaredMethod("specialBark",
+				SpecialDog.class));
 		jump = new DefaultResourceMethod(resourceClass, DogController.class.getDeclaredMethod("jump", Dog.class,
 				Integer.class));
 		dropDead = new DefaultResourceMethod(resourceClass, DogController.class.getDeclaredMethod("dropDead",
@@ -60,10 +74,31 @@ public class GsonDeserializerTest {
 		public void bark(Dog dog) {
 		}
 
+		public void specialBark(SpecialDog dog) {
+		}
+
 		public void jump(Dog dog, Integer times) {
 		}
 
 		public void dropDead(Integer times, Dog dog) {
+		}
+
+	}
+
+	static class SpecialDog {
+		private String	name;
+		private String	ability;
+	}
+
+	private class SpecialDogDeserializer implements JsonDeserializer<SpecialDog> {
+
+		@Override
+		public SpecialDog deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+				throws JsonParseException {
+			SpecialDog specialDog = new SpecialDog();
+			specialDog.name = "Renan";
+			specialDog.ability = "code";
+			return specialDog;
 		}
 
 	}
@@ -87,6 +122,22 @@ public class GsonDeserializerTest {
 		Dog dog = (Dog) deserialized[0];
 		assertThat(dog.name, is("Brutus"));
 		assertThat(dog.age, is(7));
+	}
+
+	@Test
+	public void shouldBeAbleToDeserializeADogWithDeserializerAdapter() throws Exception {
+		InputStream stream = new ByteArrayInputStream("{'specialDog':{'name':'Brutus','ability':'code'}}".getBytes());
+
+		when(provider.parameterNamesFor(specialBark.getMethod())).thenReturn(new String[] { "specialDog" });
+		when(provider.parameterNamesFor(specialBark.getMethod())).thenReturn(new String[] { "specialDog" });
+
+		Object[] deserialized = deserializer.deserialize(stream, specialBark);
+
+		assertThat(deserialized.length, is(1));
+		assertThat(deserialized[0], is(instanceOf(SpecialDog.class)));
+		SpecialDog dog = (SpecialDog) deserialized[0];
+		assertThat(dog.name, is("Renan"));
+		assertThat(dog.ability, is("code"));
 	}
 
 	@Test

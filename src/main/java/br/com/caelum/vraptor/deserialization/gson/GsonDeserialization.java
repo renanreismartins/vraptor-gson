@@ -3,13 +3,13 @@ package br.com.caelum.vraptor.deserialization.gson;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import br.com.caelum.vraptor.core.Localization;
 import br.com.caelum.vraptor.deserialization.Deserializer;
 import br.com.caelum.vraptor.deserialization.Deserializes;
 import br.com.caelum.vraptor.http.ParameterNameProvider;
@@ -18,6 +18,7 @@ import br.com.caelum.vraptor.view.ResultException;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -25,15 +26,15 @@ import com.google.gson.JsonParser;
 @Deserializes({ "application/json", "json" })
 public class GsonDeserialization implements Deserializer {
 
-	private static final Logger			logger	= LoggerFactory.getLogger(GsonDeserialization.class);
+	private static final Logger						logger	= LoggerFactory.getLogger(GsonDeserialization.class);
 
-	private final ParameterNameProvider	paramNameProvider;
+	private final ParameterNameProvider				paramNameProvider;
 
-	private final Localization			localization;
+	private final Collection<JsonDeserializer<?>>	adapters;
 
-	public GsonDeserialization(ParameterNameProvider paramNameProvider, Localization localization) {
+	public GsonDeserialization(ParameterNameProvider paramNameProvider, Collection<JsonDeserializer<?>> adapters) {
 		this.paramNameProvider = paramNameProvider;
-		this.localization = localization;
+		this.adapters = adapters;
 	}
 
 	@Override
@@ -46,6 +47,7 @@ public class GsonDeserialization implements Deserializer {
 		}
 
 		Gson gson = getGson();
+
 		Object[] params = new Object[types.length];
 		String[] parameterNames = paramNameProvider.parameterNamesFor(jMethod);
 
@@ -71,13 +73,21 @@ public class GsonDeserialization implements Deserializer {
 	}
 
 	protected Gson getGson() {
+		GsonBuilder builder = new GsonBuilder();
 
-		String pattern = ((SimpleDateFormat) DateFormat.getDateInstance(DateFormat.MEDIUM, localization.getLocale()))
-				.toLocalizedPattern();
+		for (JsonDeserializer<?> adapter : adapters) {
+			builder.registerTypeHierarchyAdapter(getAdapterType(adapter), adapter);
+		}
 
-		GsonBuilder gsonBuilder = new GsonBuilder().setDateFormat(pattern);
+		return builder.create();
+	}
 
-		return gsonBuilder.create();
+	private Class<?> getAdapterType(JsonDeserializer<?> adapter) {
+		Type[] genericInterfaces = adapter.getClass().getGenericInterfaces();
+		ParameterizedType type = (ParameterizedType) genericInterfaces[0];
+		Type actualType = type.getActualTypeArguments()[0];
+
+		return (Class<?>) actualType;
 	}
 
 	private String getContentOfStream(InputStream input) throws IOException {

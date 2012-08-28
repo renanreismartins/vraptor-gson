@@ -45,15 +45,15 @@ import com.google.gson.Gson;
 
 public class GsonSerializer implements SerializerBuilder {
 
-	private final Writer writer;
+	private final Writer			writer;
 
-	private final TypeNameExtractor extractor;
+	private final TypeNameExtractor	extractor;
 
-	private final ProxyInitializer initializer;
+	private final ProxyInitializer	initializer;
 
-	private final Serializee serializee = new Serializee();
+	private final Serializee		serializee	= new Serializee();
 
-	protected VraptorGsonBuilder builder;
+	protected VraptorGsonBuilder	builder;
 
 	public GsonSerializer(VraptorGsonBuilder builder, Writer writer, TypeNameExtractor extractor,
 			ProxyInitializer initializer) {
@@ -63,6 +63,7 @@ public class GsonSerializer implements SerializerBuilder {
 		this.builder = builder;
 	}
 
+	@Override
 	public Serializer exclude(String... names) {
 		serializee.excludeAll(names);
 		return this;
@@ -103,11 +104,13 @@ public class GsonSerializer implements SerializerBuilder {
 		return list;
 	}
 
+	@Override
 	public <T> Serializer from(T object, String alias) {
 		preConfigure(object, alias);
 		return this;
 	}
 
+	@Override
 	public <T> Serializer from(T object) {
 		preConfigure(object, null);
 		return this;
@@ -123,11 +126,13 @@ public class GsonSerializer implements SerializerBuilder {
 		return set;
 	}
 
+	@Override
 	public Serializer include(String... fields) {
 		serializee.includeAll(fields);
 		return this;
 	}
 
+	@Override
 	public void serialize() {
 		try {
 			Object root = serializee.getRoot();
@@ -152,11 +157,12 @@ public class GsonSerializer implements SerializerBuilder {
 		}
 	}
 
+	@Override
 	public Serializer recursive() {
 		this.serializee.setRecursive(true);
 		return this;
 	}
-	
+
 	static boolean isPrimitive(Class<?> type) {
 		return type.isPrimitive() || type.isEnum() || Number.class.isAssignableFrom(type) || type.equals(String.class)
 				|| Date.class.isAssignableFrom(type) || Calendar.class.isAssignableFrom(type)
