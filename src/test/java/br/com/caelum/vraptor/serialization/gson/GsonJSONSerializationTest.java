@@ -31,6 +31,8 @@ import br.com.caelum.vraptor.serialization.HibernateProxyInitializer;
 import br.com.caelum.vraptor.serialization.gson.adapters.CalendarSerializer;
 
 import com.google.common.collect.ForwardingCollection;
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSerializationContext;
@@ -57,7 +59,7 @@ public class GsonJSONSerializationTest {
 		extractor = new DefaultTypeNameExtractor();
 		initializer = new HibernateProxyInitializer();
 		this.serialization = new GsonJSONSerialization(response, extractor, initializer,
-				Collections.EMPTY_LIST);
+				Collections.EMPTY_LIST, Collections.EMPTY_LIST);
 	}
 
 	public static class Address {
@@ -139,6 +141,20 @@ public class GsonJSONSerializationTest {
 		public GenericWrapper(Collection<T> entityList, Integer total) {
 			this.entityList = entityList;
 			this.total = total;
+		}
+
+	}
+
+	public static class ClientAddressExclusion implements ExclusionStrategy {
+
+		@Override
+		public boolean shouldSkipField(FieldAttributes f) {
+			return f.getName().equals("address");
+		}
+
+		@Override
+		public boolean shouldSkipClass(Class<?> clazz) {
+			return false;
 		}
 
 	}
@@ -443,7 +459,7 @@ public class GsonJSONSerializationTest {
 		adapters.add(new CollectionSerializer());
 
 		GsonJSONSerialization serialization = new GsonJSONSerialization(response, extractor, initializer,
-				adapters);
+				adapters, Collections.EMPTY_LIST);
 
 		serialization.withoutRoot().from(new MyCollection()).serialize();
 		assertThat(result(), is(equalTo(expectedResult)));
@@ -455,7 +471,7 @@ public class GsonJSONSerializationTest {
 		adapters.add(new CalendarSerializer());
 
 		GsonJSONSerialization serialization = new GsonJSONSerialization(response, extractor, initializer,
-				adapters);
+				adapters, Collections.EMPTY_LIST);
 
 		Client c = new Client("renan");
 		c.included = new GregorianCalendar(2012, 8, 3);
@@ -468,6 +484,20 @@ public class GsonJSONSerializationTest {
 				+ "\",\"timezone\":\"" + c.included.getTimeZone().getID() + "\"}}}";
 
 		assertThat(result, is(equalTo(expectedResult)));
+	}
+
+	@Test
+	public void shouldExcludeAttributeAddressUsingExclusionStrategy() {
+		List<ExclusionStrategy> exclusions = new ArrayList<ExclusionStrategy>();
+		exclusions.add(new ClientAddressExclusion());
+
+		GsonJSONSerialization serialization = new GsonJSONSerialization(response, extractor, initializer,
+				Collections.EMPTY_LIST, exclusions);
+
+		serialization.withoutRoot().from(new Client("renan", new Address("rua joao sbarai"))).include("address")
+				.serialize();
+		System.out.println(result());
+		assertThat(result(), not(containsString("address")));
 	}
 
 }

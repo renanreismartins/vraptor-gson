@@ -19,8 +19,11 @@ public class VraptorGsonBuilder {
 
 	private Collection<JsonSerializer<?>>	serializers;
 
-	public VraptorGsonBuilder(Collection<JsonSerializer<?>> serializers) {
+	private Collection<ExclusionStrategy>	exclusions;
+
+	public VraptorGsonBuilder(Collection<JsonSerializer<?>> serializers, Collection<ExclusionStrategy> exclusions) {
 		this.serializers = serializers;
+		this.exclusions = exclusions;
 	}
 
 	public boolean isWithoutRoot() {
@@ -50,6 +53,10 @@ public class VraptorGsonBuilder {
 	public Gson create() {
 		for (JsonSerializer<?> adapter : serializers) {
 			builder.registerTypeHierarchyAdapter(getAdapterType(adapter), adapter);
+		}
+
+		for (ExclusionStrategy exclusion : exclusions) {
+			builder.addSerializationExclusionStrategy(exclusion);
 		}
 
 		return builder.create();
