@@ -33,10 +33,10 @@ import com.google.gson.ExclusionStrategy;
 import com.google.gson.JsonSerializer;
 
 /**
- * XStream implementation for JSONSerialization
+ * Gson implementation for JSONSerialization
  * 
- * @author Lucas Cavalcanti
- * @since 3.0.2
+ * @author Renan Reis
+ * @author Guilherme Mangabeira
  */
 @Component
 public class GsonJSONSerialization implements JSONSerialization {

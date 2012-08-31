@@ -37,10 +37,10 @@ import br.com.caelum.vraptor.serialization.xstream.Serializee;
 import com.google.gson.Gson;
 
 /**
- * A SerializerBuilder based on XStream
+ * A SerializerBuilder based on Gson
  * 
- * @author Lucas Cavalcanti
- * @since 3.0.2
+ * @author Renan Reis
+ * @author Guilherme Mangabeira
  */
 
 public class GsonSerializer implements SerializerBuilder {

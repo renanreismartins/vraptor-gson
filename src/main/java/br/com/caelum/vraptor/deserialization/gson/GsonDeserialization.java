@@ -23,6 +23,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+/**
+ * 
+ * @author Renan Reis
+ * @author Guilherme Mangabeira
+ */
+
 @Deserializes({ "application/json", "json" })
 public class GsonDeserialization implements Deserializer {
 

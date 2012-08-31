@@ -11,6 +11,12 @@ import br.com.caelum.vraptor.serialization.xstream.Serializee;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 
+/**
+ * 
+ * @author Renan Reis
+ * @author Guilherme Mangabeira
+ */
+
 @Component
 public class Exclusions implements ExclusionStrategy {
 
