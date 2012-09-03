@@ -496,7 +496,7 @@ public class GsonJSONSerializationTest {
 
 		serialization.withoutRoot().from(new Client("renan", new Address("rua joao sbarai"))).include("address")
 				.serialize();
-		System.out.println(result());
+
 		assertThat(result(), not(containsString("address")));
 	}
 
