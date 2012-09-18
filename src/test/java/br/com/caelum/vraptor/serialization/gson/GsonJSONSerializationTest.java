@@ -460,7 +460,7 @@ public class GsonJSONSerializationTest {
 		adapters.add(new CollectionSerializer());
 
 		GsonJSONSerialization serialization = new GsonJSONSerialization(response, extractor, initializer,
-				adapters, Collections.EMPTY_LIST);
+				adapters, Collections.<ExclusionStrategy> emptyList());
 
 		serialization.withoutRoot().from(new MyCollection()).serialize();
 		assertThat(result(), is(equalTo(expectedResult)));
@@ -472,7 +472,7 @@ public class GsonJSONSerializationTest {
 		adapters.add(new CalendarSerializer());
 
 		GsonJSONSerialization serialization = new GsonJSONSerialization(response, extractor, initializer,
-				adapters, Collections.EMPTY_LIST);
+				adapters, Collections.<ExclusionStrategy> emptyList());
 
 		Client c = new Client("renan");
 		c.included = new GregorianCalendar(2012, 8, 3);
@@ -493,7 +493,7 @@ public class GsonJSONSerializationTest {
 		exclusions.add(new ClientAddressExclusion());
 
 		GsonJSONSerialization serialization = new GsonJSONSerialization(response, extractor, initializer,
-				Collections.EMPTY_LIST, exclusions);
+				Collections.<JsonSerializer<?>> emptyList(), exclusions);
 
 		serialization.withoutRoot().from(new Client("renan", new Address("rua joao sbarai"))).include("address")
 				.serialize();
