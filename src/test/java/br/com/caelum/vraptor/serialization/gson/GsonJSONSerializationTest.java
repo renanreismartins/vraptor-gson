@@ -488,7 +488,7 @@ public class GsonJSONSerializationTest {
 	}
 
 	@Test
-	public void shouldExcludeAttributeAddressUsingExclusionStrategy() {
+	public void shouldExcludeAttributeUsingExclusionStrategy() {
 		List<ExclusionStrategy> exclusions = new ArrayList<ExclusionStrategy>();
 		exclusions.add(new ClientAddressExclusion());
 
