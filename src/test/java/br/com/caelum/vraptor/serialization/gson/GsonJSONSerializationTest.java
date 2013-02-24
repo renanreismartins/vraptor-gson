@@ -148,12 +148,10 @@ public class GsonJSONSerializationTest {
 
 	public static class ClientAddressExclusion implements ExclusionStrategy {
 
-		@Override
 		public boolean shouldSkipField(FieldAttributes f) {
 			return f.getName().equals("address");
 		}
 
-		@Override
 		public boolean shouldSkipClass(Class<?> clazz) {
 			return false;
 		}
@@ -404,7 +402,6 @@ public class GsonJSONSerializationTest {
 			this.initializer = initializer;
 		}
 
-		@Override
 		public LazyInitializer getHibernateLazyInitializer() {
 			return initializer;
 		}
@@ -413,7 +410,6 @@ public class GsonJSONSerializationTest {
 			return aField;
 		}
 
-		@Override
 		public Object writeReplace() {
 			return this;
 		}
@@ -445,7 +441,6 @@ public class GsonJSONSerializationTest {
 	}
 
 	static class CollectionSerializer implements JsonSerializer<MyCollection> {
-		@Override
 		public JsonElement serialize(MyCollection myColl, java.lang.reflect.Type typeOfSrc,
 				JsonSerializationContext context) {
 			return new JsonParser().parse("[testing]").getAsJsonArray();

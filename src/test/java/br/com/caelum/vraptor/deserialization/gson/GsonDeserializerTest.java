@@ -79,7 +79,6 @@ public class GsonDeserializerTest {
 
 	private class DogDeserializer implements JsonDeserializer<Dog> {
 
-		@Override
 		public Dog deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
 				throws JsonParseException {
 			Dog dog = new Dog();
