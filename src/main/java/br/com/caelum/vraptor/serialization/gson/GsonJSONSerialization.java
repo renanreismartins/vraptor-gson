@@ -29,7 +29,6 @@ import br.com.caelum.vraptor.serialization.Serializer;
 import br.com.caelum.vraptor.serialization.SerializerBuilder;
 import br.com.caelum.vraptor.view.ResultException;
 
-import com.google.gson.ExclusionStrategy;
 import com.google.gson.JsonSerializer;
 
 /**
@@ -49,14 +48,15 @@ public class GsonJSONSerialization implements JSONSerialization {
 
 	protected final VraptorGsonBuilder builder;
 
-	public GsonJSONSerialization(HttpServletResponse response, TypeNameExtractor extractor,
-			ProxyInitializer initializer, Collection<JsonSerializer<?>> serializers,
-			Collection<ExclusionStrategy> exclusions) {
+	public GsonJSONSerialization(HttpServletResponse response,
+			TypeNameExtractor extractor,
+			ProxyInitializer initializer,
+			Collection<JsonSerializer<?>> serializers) {
 		this.response = response;
 		this.extractor = extractor;
 		this.initializer = initializer;
 
-		this.builder = new VraptorGsonBuilder(serializers, exclusions);
+		this.builder = new VraptorGsonBuilder(serializers);
 	}
 
 	public boolean accepts(String format) {
