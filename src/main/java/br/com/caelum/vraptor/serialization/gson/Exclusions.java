@@ -20,13 +20,12 @@ import com.google.gson.FieldAttributes;
 @Component
 public class Exclusions implements ExclusionStrategy {
 
-	private Serializee	serializee;
+	private Serializee serializee;
 
 	public Exclusions(Serializee serializee) {
 		this.serializee = serializee;
 	}
 
-	@Override
 	public boolean shouldSkipField(FieldAttributes f) {
 		String fieldName = f.getName();
 		Class<?> definedIn = f.getDeclaringClass();
@@ -55,7 +54,6 @@ public class Exclusions implements ExclusionStrategy {
 				"." + fieldName)));
 	}
 
-	@Override
 	public boolean shouldSkipClass(Class<?> clazz) {
 		return false;
 	}

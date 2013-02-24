@@ -41,13 +41,13 @@ import com.google.gson.JsonSerializer;
 @Component
 public class GsonJSONSerialization implements JSONSerialization {
 
-	protected final HttpServletResponse	response;
+	protected final HttpServletResponse response;
 
-	protected final TypeNameExtractor	extractor;
+	protected final TypeNameExtractor extractor;
 
-	protected final ProxyInitializer	initializer;
+	protected final ProxyInitializer initializer;
 
-	protected final VraptorGsonBuilder	builder;
+	protected final VraptorGsonBuilder builder;
 
 	public GsonJSONSerialization(HttpServletResponse response, TypeNameExtractor extractor,
 			ProxyInitializer initializer, Collection<JsonSerializer<?>> serializers,
@@ -59,17 +59,14 @@ public class GsonJSONSerialization implements JSONSerialization {
 		this.builder = new VraptorGsonBuilder(serializers, exclusions);
 	}
 
-	@Override
 	public boolean accepts(String format) {
 		return "json".equals(format);
 	}
 
-	@Override
 	public <T> Serializer from(T object) {
 		return from(object, null);
 	}
 
-	@Override
 	public <T> Serializer from(T object, String alias) {
 		response.setContentType("application/json");
 		return getSerializer().from(object, alias);
@@ -86,13 +83,11 @@ public class GsonJSONSerialization implements JSONSerialization {
 	/**
 	 * You can override this method for configuring Driver before serialization
 	 */
-	@Override
 	public <T> NoRootSerialization withoutRoot() {
 		builder.setWithoutRoot(true);
 		return this;
 	}
 
-	@Override
 	public JSONSerialization indented() {
 		builder.indented();
 		return this;

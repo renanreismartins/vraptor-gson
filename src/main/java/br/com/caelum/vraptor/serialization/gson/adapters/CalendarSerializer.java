@@ -13,7 +13,6 @@ import com.google.gson.JsonSerializer;
 @Component
 public class CalendarSerializer implements JsonSerializer<Calendar> {
 
-	@Override
 	public JsonElement serialize(Calendar calendar, Type typeOfSrc, JsonSerializationContext context) {
 		long timeInMillis = calendar.getTimeInMillis();
 		String timeZoneID = calendar.getTimeZone().getID();
@@ -23,4 +22,5 @@ public class CalendarSerializer implements JsonSerializer<Calendar> {
 
 		return new JsonParser().parse(json).getAsJsonObject();
 	}
+
 }

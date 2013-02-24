@@ -32,18 +32,17 @@ import com.google.gson.JsonParser;
 @Deserializes({ "application/json", "json" })
 public class GsonDeserialization implements Deserializer {
 
-	private static final Logger						logger	= LoggerFactory.getLogger(GsonDeserialization.class);
+	private static final Logger logger = LoggerFactory.getLogger(GsonDeserialization.class);
 
-	private final ParameterNameProvider				paramNameProvider;
+	private final ParameterNameProvider paramNameProvider;
 
-	private final Collection<JsonDeserializer<?>>	adapters;
+	private final Collection<JsonDeserializer<?>> adapters;
 
 	public GsonDeserialization(ParameterNameProvider paramNameProvider, Collection<JsonDeserializer<?>> adapters) {
 		this.paramNameProvider = paramNameProvider;
 		this.adapters = adapters;
 	}
 
-	@Override
 	public Object[] deserialize(InputStream inputStream, ResourceMethod method) {
 		Method jMethod = method.getMethod();
 		Class<?>[] types = jMethod.getParameterTypes();
