@@ -55,7 +55,13 @@ public class VraptorGsonBuilder {
 
 	public Gson create() {
 		for (JsonSerializer<?> adapter : serializers) {
-			builder.registerTypeHierarchyAdapter(getAdapterType(adapter), adapter);
+			Class<?> adapterType = getAdapterType(adapter);
+			boolean isHierarchical = adapter.getClass().isAnnotationPresent(HierarchicalAdapter.class);
+			if (isHierarchical) {
+				builder.registerTypeHierarchyAdapter(adapterType, adapter);				
+			} else {
+				builder.registerTypeAdapter(adapterType, adapter);
+			}
 		}
 
 		return builder.create();

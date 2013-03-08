@@ -2,6 +2,7 @@ package br.com.caelum.vraptor.deserialization.gson;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -22,6 +23,7 @@ import br.com.caelum.vraptor.http.ParameterNameProvider;
 import br.com.caelum.vraptor.resource.DefaultResourceClass;
 import br.com.caelum.vraptor.resource.DefaultResourceMethod;
 import br.com.caelum.vraptor.resource.ResourceMethod;
+import br.com.caelum.vraptor.serialization.gson.HierarchicalAdapter;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -37,6 +39,7 @@ public class GsonDeserializerTest {
 	private ResourceMethod jump;
 	private DefaultResourceMethod woof;
 	private DefaultResourceMethod dropDead;
+	private ResourceMethod withDogs;
 
 	@Before
 	public void setUp() throws Exception {
@@ -54,11 +57,21 @@ public class GsonDeserializerTest {
 				Integer.class));
 		dropDead = new DefaultResourceMethod(resourceClass, DogController.class.getDeclaredMethod("dropDead",
 				Integer.class, Dog.class));
+		withDogs = new DefaultResourceMethod(resourceClass, DogController.class.getDeclaredMethod("withDogs", WithDogs.class));
 	}
 
 	static class Dog {
 		private String name;
 		private Integer age;
+	}
+	
+	static class UglyDog extends Dog {
+		public String color;
+	}
+	
+	static class WithDogs {
+		Dog dog;
+		UglyDog uglyDog;
 	}
 
 	static class DogController {
@@ -75,6 +88,8 @@ public class GsonDeserializerTest {
 		public void dropDead(Integer times, Dog dog) {
 		}
 
+		public void withDogs(WithDogs withDogs) {
+		}
 	}
 
 	private class DogDeserializer implements JsonDeserializer<Dog> {
@@ -89,7 +104,28 @@ public class GsonDeserializerTest {
 		}
 
 	}
+	
+	private class SomeNonHierarchicalAdapter implements JsonDeserializer<Dog> {
 
+		public Dog deserialize(JsonElement json, Type typeOfT,
+				JsonDeserializationContext context) throws JsonParseException {
+			Dog dog = new Dog();
+			dog.name = json.getAsString();
+			return dog;
+		}
+	}
+
+	@HierarchicalAdapter
+	private class SomeHierarchicalAdapter implements JsonDeserializer<Dog> {
+
+		public Dog deserialize(JsonElement json, Type typeOfT,
+				JsonDeserializationContext context) throws JsonParseException {
+			UglyDog uglyDog = new UglyDog();
+			uglyDog.color = json.getAsString();
+			return uglyDog;
+		}
+	}
+	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldNotAcceptMethodsWithoutArguments() throws Exception {
 		deserializer.deserialize(new ByteArrayInputStream(new byte[0]), woof);
@@ -177,4 +213,49 @@ public class GsonDeserializerTest {
 		assertThat(dog.age, is(7));
 	}
 
+	@Test
+	public void shouldUseNonHierarchicalAdapterIfExists() {
+		InputStream stream = new ByteArrayInputStream(
+				"{'withDogs':{'dog':'Simple Dog','uglyDog':{'name':'Ugly Dog','age':100,'color':gray}}}".getBytes());
+		
+		List<JsonDeserializer<?>> deserializers = new ArrayList<JsonDeserializer<?>>();
+		deserializers.add(new SomeNonHierarchicalAdapter());
+
+		deserializer = new GsonDeserialization(provider, deserializers);
+
+		when(provider.parameterNamesFor(withDogs.getMethod())).thenReturn(
+				new String[] { "withDogs" });
+
+		Object[] deserialized = deserializer.deserialize(stream, withDogs);
+
+		assertThat(deserialized.length, is(1));
+		assertThat(deserialized[0], is(instanceOf(WithDogs.class)));
+		WithDogs withDogs = (WithDogs) deserialized[0];
+		assertThat(withDogs.dog.name, is("Simple Dog"));
+		assertThat(withDogs.dog.age, is(nullValue()));
+		assertThat(withDogs.uglyDog.color, is("gray"));
+	}
+	
+	@Test
+	public void shouldUseHierarchicalAdapterIfExists() {
+		InputStream stream = new ByteArrayInputStream(
+				"{'withDogs':{'dog':'black','uglyDog':'gray'}}".getBytes());
+		
+		List<JsonDeserializer<?>> deserializers = new ArrayList<JsonDeserializer<?>>();
+		deserializers.add(new SomeHierarchicalAdapter());
+
+		deserializer = new GsonDeserialization(provider, deserializers);
+
+		when(provider.parameterNamesFor(withDogs.getMethod())).thenReturn(
+				new String[] { "withDogs" });
+
+		Object[] deserialized = deserializer.deserialize(stream, withDogs);
+
+		assertThat(deserialized.length, is(1));
+		assertThat(deserialized[0], is(instanceOf(WithDogs.class)));
+		WithDogs withDogs = (WithDogs) deserialized[0];
+		assertThat(withDogs.dog, is(instanceOf(UglyDog.class)));
+		assertThat(withDogs.uglyDog, is(instanceOf(UglyDog.class)));
+		assertThat(withDogs.uglyDog.color, is("gray"));
+	}
 }

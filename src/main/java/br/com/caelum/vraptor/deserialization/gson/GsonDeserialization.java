@@ -14,6 +14,7 @@ import br.com.caelum.vraptor.deserialization.Deserializer;
 import br.com.caelum.vraptor.deserialization.Deserializes;
 import br.com.caelum.vraptor.http.ParameterNameProvider;
 import br.com.caelum.vraptor.resource.ResourceMethod;
+import br.com.caelum.vraptor.serialization.gson.HierarchicalAdapter;
 import br.com.caelum.vraptor.view.ResultException;
 
 import com.google.gson.Gson;
@@ -81,7 +82,13 @@ public class GsonDeserialization implements Deserializer {
 		GsonBuilder builder = new GsonBuilder();
 
 		for (JsonDeserializer<?> adapter : adapters) {
-			builder.registerTypeHierarchyAdapter(getAdapterType(adapter), adapter);
+			Class<?> adapterType = getAdapterType(adapter);
+			boolean isHierarchical = adapter.getClass().isAnnotationPresent(HierarchicalAdapter.class);
+			if (isHierarchical) {
+				builder.registerTypeHierarchyAdapter(adapterType, adapter);				
+			} else {
+				builder.registerTypeAdapter(adapterType, adapter);
+			}
 		}
 
 		return builder.create();

@@ -507,4 +507,63 @@ public class GsonJSONSerializationTest {
 
 		assertThat(result(), not(containsString("address")));
 	}
+	
+	@Test
+	public void shouldUseHierarchicalAdapterWhenItExists() {
+		String expectedResult = "{\"list\":[\"Order\",\"Order\"]}";
+		
+		Order order = new Order(null, 15.0, "pack it nicely, please");		
+		Order advancedOrder = new AdvancedOrder(null, 15.0, "pack it nicely, please", "complex package");		
+		List<Order> orders = Arrays.asList(order, advancedOrder);
+		
+		List<JsonSerializer<?>> adapters = new ArrayList<JsonSerializer<?>>();
+		adapters.add(new MyHierarchicalAdapter());
+
+		GsonJSONSerialization serialization = new GsonJSONSerialization(response,
+				extractor,
+				initializer,
+				adapters);
+		
+		serialization.from(orders).serialize();
+		assertThat(result(), is(equalTo(expectedResult)));		
+	}
+	
+	@Test
+	public void shouldUseNonHierarchicalAdapterWhenItExists() {
+		String expectedResult = "{\"list\":[\"Order\",{\"notes\":\"complex package\",\"price\":15.0,\"comments\":\"pack it nicely, please\"}]}";
+		
+		Order order = new Order(null, 15.0, "pack it nicely, please");		
+		Order advancedOrder = new AdvancedOrder(null, 15.0, "pack it nicely, please", "complex package");		
+		List<Order> orders = Arrays.asList(order, advancedOrder);
+		
+		List<JsonSerializer<?>> adapters = new ArrayList<JsonSerializer<?>>();
+		adapters.add(new MyNonHierarchicalAdapter());
+
+		GsonJSONSerialization serialization = new GsonJSONSerialization(response,
+				extractor,
+				initializer,
+				adapters);
+		
+		serialization.from(orders).serialize();
+		assertThat(result(), is(equalTo(expectedResult)));		
+	}
+	
+	@HierarchicalAdapter
+	static class MyHierarchicalAdapter implements JsonSerializer<Order> {
+
+		public JsonElement serialize(Order src,
+				java.lang.reflect.Type typeOfSrc,
+				JsonSerializationContext context) {
+			return context.serialize("Order");
+		}		
+	}
+	
+	static class MyNonHierarchicalAdapter implements JsonSerializer<Order> {
+
+		public JsonElement serialize(Order src,
+				java.lang.reflect.Type typeOfSrc,
+				JsonSerializationContext context) {
+			return context.serialize("Order");
+		}		
+	}
 }
