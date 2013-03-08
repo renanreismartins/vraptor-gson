@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 import java.util.Calendar;
 
 import br.com.caelum.vraptor.ioc.Component;
+import br.com.caelum.vraptor.serialization.gson.HierarchicalAdapter;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -11,6 +12,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 @Component
+@HierarchicalAdapter
 public class CalendarSerializer implements JsonSerializer<Calendar> {
 
 	public JsonElement serialize(Calendar calendar, Type typeOfSrc, JsonSerializationContext context) {
